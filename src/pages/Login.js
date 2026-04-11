@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { authAPI, userAPI, setupSessionExpirationTimer } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 function Login() {

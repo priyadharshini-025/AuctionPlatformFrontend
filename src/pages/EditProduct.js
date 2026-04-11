@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
+// import { useAuth } from '../contexts/AuthContext';
 
 function EditProduct() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
