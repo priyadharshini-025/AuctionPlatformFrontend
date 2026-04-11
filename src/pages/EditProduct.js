@@ -19,24 +19,25 @@ function EditProduct() {
   });
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productRes, categoriesRes] = await Promise.all([
+          productAPI.getById(id),
+          categoryAPI.getAll(),
+        ]);
+        setFormData(productRes.data);
+        setCategories(categoriesRes.data);
+      } catch (err) {
+        setError('Error fetching product');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
   }, [id]);
 
-  const fetchData = async () => {
-    try {
-      const [productRes, categoriesRes] = await Promise.all([
-        productAPI.getById(id),
-        categoryAPI.getAll(),
-      ]);
-      setFormData(productRes.data);
-      setCategories(categoriesRes.data);
-    } catch (err) {
-      setError('Error fetching product');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (e) => {
     setFormData({
