@@ -22,6 +22,14 @@ function Register() {
     });
   };
 
+  const getApiErrorMessage = (err) => {
+    return (
+      err.response?.data?.errors?.[0]?.msg ||
+      err.response?.data?.msg ||
+      'Registration failed'
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -48,7 +56,7 @@ function Register() {
       login(profileResponse.data);
       navigate(profileResponse.data.role === 'seller' ? '/seller-dashboard' : '/user-dashboard');
     } catch (err) {
-      setError(err.response?.data?.msg || 'Registration failed');
+      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }

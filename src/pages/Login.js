@@ -19,6 +19,14 @@ function Login() {
     });
   };
 
+  const getApiErrorMessage = (err) => {
+    return (
+      err.response?.data?.errors?.[0]?.msg ||
+      err.response?.data?.msg ||
+      'Login failed'
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -40,7 +48,7 @@ function Login() {
       login(profileResponse.data);
       navigate(profileResponse.data.role === 'seller' ? '/seller-dashboard' : '/user-dashboard');
     } catch (err) {
-      setError(err.response?.data?.msg || 'Login failed');
+      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
