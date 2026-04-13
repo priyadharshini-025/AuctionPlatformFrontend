@@ -43,7 +43,7 @@ function Register() {
       errors.confirmPassword = 'Passwords do not match';
     }
 
-    const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+    const phoneRegex = /^\+?[\d\s\-()]{10,}$/;
     if (!phoneRegex.test(formData.contact)) {
       errors.contact = 'Please enter a valid phone number';
     }
