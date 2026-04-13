@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { productAPI, auctionAPI, categoryAPI, setupSessionExpirationTimer, getTokenExpirationType } from '../services/api';
 // import { useAuth } from '../contexts/AuthContext';
 
 function SellerDashboard() {
   // const { user } = useAuth();
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [auctions, setAuctions] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -60,7 +61,7 @@ function SellerDashboard() {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [location]); // Refetch when location changes (navigation)
 
   const fetchData = async () => {
     try {
@@ -192,7 +193,7 @@ function SellerDashboard() {
   const totalInventoryCount = products.reduce((sum, product) => sum + Number(product.inventory || 0), 0);
   const availableProducts = products.filter((product) => product.inventory > 0);
   const unsoldProducts = products.filter((product) => product.status === 'unsold');
-  const soldOutProducts = products.filter((product) => product.inventory === 0 && product.status !== 'unsold');
+  const soldOutProducts = products.filter((product) => product.status === 'sold');
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -336,17 +337,6 @@ function SellerDashboard() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-gray-700 font-bold mb-2">Inventory</label>
-                      <input
-                        type="number"
-                        value={productForm.inventory}
-                        onChange={(e) => setProductForm({ ...productForm, inventory: e.target.value })}
-                        min="0"
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
-                        required
-                      />
-                    </div>
-                    <div>
                       <label className="block text-gray-700 font-bold mb-2">Category</label>
                       <select
                         value={productForm.category}
@@ -418,8 +408,10 @@ function SellerDashboard() {
                               : null;
 
                             if (latestAuction && new Date(latestAuction.endTime) <= new Date()) {
-                              const hasWinner = latestAuction.winner || (latestAuction.winners && latestAuction.winners.length > 0);
-                              return hasWinner ? 'Sold' : 'Unsold';
+                              if (latestAuction.status === 'partially_sold') return 'Partially Sold';
+                              if (latestAuction.status === 'sold') return 'Sold';
+                              if (latestAuction.status === 'unsold') return 'Unsold';
+                              return product.status === 'available' ? 'Available' : product.status === 'sold' ? 'Sold Out' : 'Unsold';
                             }
 
                             return product.status === 'available'
@@ -533,7 +525,7 @@ function SellerDashboard() {
                       const now = new Date();
                       const auctionStatus = currentAuction
                         ? new Date(currentAuction.endTime) <= now
-                          ? 'ended'
+                          ? currentAuction.status || 'ended'
                           : new Date(currentAuction.startTime) > now
                             ? 'upcoming'
                             : currentAuction.status
@@ -548,7 +540,15 @@ function SellerDashboard() {
                             {product.status === 'unsold' && 'Unsold'}
                           </td>
                           <td className="px-6 py-4">{product.category?.name || 'N/A'}</td>
-                          <td className="px-6 py-4 capitalize">{auctionStatus}</td>
+                          <td className="px-6 py-4 capitalize">
+                            {auctionStatus === 'ended'
+                              ? (currentAuction.winner || (currentAuction.winners && currentAuction.winners.length > 0))
+                                ? 'Sold'
+                                : 'Unsold'
+                              : auctionStatus === 'partially_sold'
+                                ? 'Partially Sold'
+                                : auctionStatus}
+                          </td>
                           <td className="px-6 py-4 space-x-2">
                             <Link
                               to={`/edit-product/${product._id}`}
@@ -607,7 +607,7 @@ function SellerDashboard() {
                   auctions.map((auction) => {
                     const now = new Date();
                     const auctionStatus = new Date(auction.endTime) <= now
-                      ? 'ended'
+                      ? auction.status || 'ended'
                       : new Date(auction.startTime) > now
                         ? 'upcoming'
                         : auction.status;
@@ -615,9 +615,9 @@ function SellerDashboard() {
                       <tr key={auction._id} className="border-t hover:bg-gray-50">
                         <td className="px-6 py-4">{auction.product?.name || 'N/A'}</td>
                         <td className="px-6 py-4 capitalize">
-                          {auctionStatus === 'ended' ? (
-                            (auction.winner || (auction.winners && auction.winners.length > 0)) ? 'Sold' : 'Unsold'
-                          ) : auctionStatus}
+                          {auctionStatus === 'ended'
+                            ? (auction.winner || (auction.winners && auction.winners.length > 0)) ? 'Sold' : 'Unsold'
+                            : auctionStatus}
                         </td>
                         <td className="px-6 py-4">{auction.bids.length}</td>
                         <td className="px-6 py-4">

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { auctionAPI, bidAPI, reviewAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import ImageZoom from '../components/ImageZoom';
 
 function AuctionDetail() {
   const { id } = useParams();
@@ -188,7 +189,7 @@ function AuctionDetail() {
       ? 'upcoming'
       : 'active';
 
-  const imageBaseUrl = process.env.REACT_APP_API_URL || window.location.origin;
+  const imageBaseUrl = (process.env.REACT_APP_API_URL || window.location.origin).replace('/api', '');
   const selectedImageSrc = auction.images && auction.images.length > 0
     ? auction.images[currentImageIndex].startsWith('http')
       ? auction.images[currentImageIndex]
@@ -204,26 +205,26 @@ function AuctionDetail() {
             <div className="bg-gray-200 h-96 rounded-lg flex items-center justify-center overflow-hidden relative">
               {selectedImageSrc ? (
                 <>
-                  <img
+                  <ImageZoom
                     src={selectedImageSrc}
                     alt={`Product ${currentImageIndex + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full"
                   />
                   {auction.images.length > 1 && (
                     <>
                       <button
                         onClick={() => setCurrentImageIndex((currentImageIndex - 1 + auction.images.length) % auction.images.length)}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-2 rounded hover:bg-opacity-75"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-2 rounded hover:bg-opacity-75 z-10"
                       >
                         ‹
                       </button>
                       <button
                         onClick={() => setCurrentImageIndex((currentImageIndex + 1) % auction.images.length)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-2 rounded hover:bg-opacity-75"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-2 rounded hover:bg-opacity-75 z-10"
                       >
                         ›
                       </button>
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded text-sm">
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded text-sm z-10">
                         {currentImageIndex + 1} / {auction.images.length}
                       </div>
                     </>

@@ -14,12 +14,42 @@ function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (formData.name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    if (formData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+
+    const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+    if (!phoneRegex.test(formData.contact)) {
+      errors.contact = 'Please enter a valid phone number';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const getApiErrorMessage = (err) => {
@@ -33,9 +63,9 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setValidationErrors({});
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    if (!validateForm()) {
       return;
     }
 
@@ -81,9 +111,14 @@ function Register() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
+              className={`w-full px-4 py-2 border rounded-lg input-focus ${
+                validationErrors.name ? 'border-red-500' : ''
+              }`}
               required
             />
+            {validationErrors.name && (
+              <p className="text-red-500 text-sm mt-1">{validationErrors.name}</p>
+            )}
           </div>
 
           <div>
@@ -93,9 +128,14 @@ function Register() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
+              className={`w-full px-4 py-2 border rounded-lg input-focus ${
+                validationErrors.email ? 'border-red-500' : ''
+              }`}
               required
             />
+            {validationErrors.email && (
+              <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -105,9 +145,14 @@ function Register() {
               name="contact"
               value={formData.contact}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
+              className={`w-full px-4 py-2 border rounded-lg input-focus ${
+                validationErrors.contact ? 'border-red-500' : ''
+              }`}
               required
             />
+            {validationErrors.contact && (
+              <p className="text-red-500 text-sm mt-1">{validationErrors.contact}</p>
+            )}
           </div>
 
           <div>
@@ -130,9 +175,14 @@ function Register() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
+              className={`w-full px-4 py-2 border rounded-lg input-focus ${
+                validationErrors.password ? 'border-red-500' : ''
+              }`}
               required
             />
+            {validationErrors.password && (
+              <p className="text-red-500 text-sm mt-1">{validationErrors.password}</p>
+            )}
           </div>
 
           <div>
@@ -142,15 +192,20 @@ function Register() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
+              className={`w-full px-4 py-2 border rounded-lg input-focus ${
+                validationErrors.confirmPassword ? 'border-red-500' : ''
+              }`}
               required
             />
+            {validationErrors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">{validationErrors.confirmPassword}</p>
+            )}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 disabled:bg-gray-400"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 disabled:bg-gray-400 btn-hover"
           >
             {loading ? 'Registering...' : 'Register'}
           </button>

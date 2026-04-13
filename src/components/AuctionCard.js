@@ -25,6 +25,20 @@ function AuctionCard({ auction }) {
     : new Date(auction.startTime) > now
       ? 'upcoming'
       : auction.status;
+  
+  const getStatusBadge = (status) => {
+    const badges = {
+      active: { text: 'Active', color: 'bg-green-100 text-green-800' },
+      ended: { text: 'Ended', color: 'bg-red-100 text-red-800' },
+      upcoming: { text: 'Upcoming', color: 'bg-blue-100 text-blue-800' },
+      sold: { text: 'Sold', color: 'bg-purple-100 text-purple-800' },
+      unsold: { text: 'Unsold', color: 'bg-gray-100 text-gray-800' },
+      partially_sold: { text: 'Partially Sold', color: 'bg-yellow-100 text-yellow-800' },
+    };
+    return badges[status] || { text: status, color: 'bg-gray-100 text-gray-800' };
+  };
+
+  const statusBadge = getStatusBadge(computedStatus);
 
   const currentBid = auction.bids.length > 0
     ? (auction.auctionType === 'reverse' 
@@ -42,17 +56,18 @@ function AuctionCard({ auction }) {
 //       : `${imageBaseUrl}${auction.images[0]}`
     // : null;
 
-    const imageBaseUrl = process.env.REACT_APP_API_URL || window.location.origin;
+    const imageBaseUrl = (process.env.REACT_APP_API_URL || window.location.origin).replace('/api', '');
   
-const imageSrc = auction.images?.length
-  ? auction.images[0].startsWith('http')
-    ? auction.images[0]
-    : `${imageBaseUrl.replace(/\/$/, '')}${auction.images[0]}`
-  : null;
-
+    const imageSrc = auction.images?.length
+      ? auction.images[0].startsWith('http')
+        ? auction.images[0]  // Cloudinary URL - use as is
+        : `${imageBaseUrl.replace(/\/$/, '')}${auction.images[0]}`  // Local URL - construct full path
+      : null;
+    
+    console.log("AuctionCard - auction.images:", auction.images, "imageSrc:", imageSrc);
   return (
     <Link to={`/auction/${auction._id}`}>
-      <div className="bg-white rounded-lg shadow hover:shadow-lg transition p-4">
+      <div className="bg-white rounded-lg shadow card-hover p-4">
         <div className="bg-gray-200 h-48 rounded mb-4 flex items-center justify-center overflow-hidden">
           {imageSrc ? (
             <img
@@ -64,7 +79,12 @@ const imageSrc = auction.images?.length
             <span className="text-gray-400">No Image</span>
           )}
         </div>
-        <h3 className="text-lg font-bold mb-2">{auction.product?.name || 'N/A'}</h3>
+        <h3 className="text-lg font-bold mb-2 flex items-center justify-between">
+          {auction.product?.name || 'N/A'}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusBadge.color}`}>
+            {statusBadge.text}
+          </span>
+        </h3>
         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{auction.product?.description || 'N/A'}</p>
         
         <div className="mb-3 space-y-2">
@@ -82,8 +102,7 @@ const imageSrc = auction.images?.length
           </p>
         </div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">{computedStatus}</span>
+        <div className="flex justify-end items-center">
           <span className={`text-sm font-bold ${timeLeft > 0 ? 'text-green-600' : 'text-red-600'}`}>
             {timeLeftText}
           </span>

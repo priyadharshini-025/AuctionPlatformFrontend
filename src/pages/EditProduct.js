@@ -116,19 +116,6 @@ function EditProduct() {
             </div>
 
             <div>
-              <label className="block text-gray-700 font-bold mb-2">Inventory</label>
-              <input
-                type="number"
-                name="inventory"
-                value={formData.inventory}
-                onChange={handleChange}
-                min="0"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
-                required
-              />
-            </div>
-
-            <div>
               <label className="block text-gray-700 font-bold mb-2">Category</label>
               <select
                 name="category"

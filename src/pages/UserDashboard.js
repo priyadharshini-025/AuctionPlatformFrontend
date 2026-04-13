@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { bidAPI, setupSessionExpirationTimer, getTokenExpirationType } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 function UserDashboard() {
   const { user } = useAuth();
+  const location = useLocation();
   const [bidHistory, setBidHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -43,7 +44,7 @@ function UserDashboard() {
     return () => {
       clearInterval(interval);
     };
-  }, [user]);
+  }, [user, location]); // Refetch when user or location changes
 
   const fetchBidHistory = async () => {
     try {

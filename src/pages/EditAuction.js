@@ -233,7 +233,7 @@ function EditAuction() {
                   {auction.images
                     .filter(img => !imagesToRemove.includes(img))
                     .map((img, idx) => {
-                    const imageBaseUrl = process.env.REACT_APP_API_URL || window.location.origin;
+                    const imageBaseUrl = (process.env.REACT_APP_API_URL || window.location.origin).replace('/api', '');
                     const imgUrl = img.startsWith('http') ? img : `${imageBaseUrl}${img}`;
                     return (
                       <div key={idx} className="relative">

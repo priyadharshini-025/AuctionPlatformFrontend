@@ -10,6 +10,8 @@ function CreateAuction() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [creatingProduct, setCreatingProduct] = useState(false);
+  const [creatingAuction, setCreatingAuction] = useState(false);
 
   const [productData, setProductData] = useState({
     name: '',
@@ -129,6 +131,7 @@ function CreateAuction() {
   const handleCreateProduct = async (e) => {
     e.preventDefault();
     setError('');
+    setCreatingProduct(true);
 
     try {
       const response = await productAPI.create(productData);
@@ -144,15 +147,19 @@ function CreateAuction() {
       setStep(2);
     } catch (err) {
       setError(err.response?.data?.msg || 'Error creating product');
+    } finally {
+      setCreatingProduct(false);
     }
   };
 
   const handleCreateAuction = async (e) => {
     e.preventDefault();
     setError('');
+    setCreatingAuction(true);
 
     if (!auctionData.productId) {
       setError('Please select a product');
+      setCreatingAuction(false);
       return;
     }
 
@@ -179,6 +186,8 @@ function CreateAuction() {
 
     } catch (err) {
       setError(err.response?.data?.msg || 'Error creating auction');
+    } finally {
+      setCreatingAuction(false);
     }
   };
   if (loading) {
@@ -221,7 +230,7 @@ function CreateAuction() {
                 </button>
               </div>
 
-              {products.length > 0 && (
+              {products.length > 0 && !auctionData.productId && (
                 <div className="mb-6">
                   <label className="block text-gray-700 font-bold mb-2">Select Existing Product</label>
                   <select
@@ -243,12 +252,14 @@ function CreateAuction() {
                 </div>
               )}
 
-              <div className="border-t pt-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">Create New Product</h3>
-                  <span className="text-sm text-gray-500">Required for auction</span>
-                </div>
-                <form onSubmit={handleCreateProduct} className="space-y-4">
+              {/* Only show create new product form if no existing product is selected */}
+              {!auctionData.productId && (
+                <div className="border-t pt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold">Create New Product</h3>
+                    <span className="text-sm text-gray-500">Required for auction</span>
+                  </div>
+                  <form onSubmit={handleCreateProduct} className="space-y-4">
                   <div>
                     <label className="block text-gray-700 font-bold mb-2">Product Name</label>
                     <input
@@ -286,19 +297,6 @@ function CreateAuction() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-gray-700 font-bold mb-2">Inventory</label>
-                    <input
-                      type="number"
-                      name="inventory"
-                      value={productData.inventory}
-                      onChange={handleProductChange}
-                      min="0"
-                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
-                      required
-                    />
-                  </div>
-
                   <div className="relative">
                     <label className="block text-gray-700 font-bold mb-2">
                       Category
@@ -311,7 +309,7 @@ function CreateAuction() {
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600 relative z-50"
                       required
                     >
-                      <option value="">Select category</option>
+                      <option value="" style={{ fontWeight: 'bold' }}>Select category</option>
                       {categories.map((cat) => (
                         <option key={cat._id} value={cat._id}>
                           {cat.name}
@@ -322,12 +320,14 @@ function CreateAuction() {
 
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 relative z-10 mt-4"
+                    disabled={creatingProduct}
+                    className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 relative z-10 mt-4 disabled:bg-gray-400"
                   >
-                    Create Product & Continue
+                    {creatingProduct ? 'Creating Product...' : 'Create Product & Continue'}
                   </button>
                 </form>
               </div>
+              )}
             </div>
           )}
 
@@ -338,20 +338,29 @@ function CreateAuction() {
               <form onSubmit={handleCreateAuction} className="space-y-4">
                 <div>
                   <label className="block text-gray-700 font-bold mb-2">Product</label>
-                  <select
-                    name="productId"
-                    value={auctionData.productId}
-                    onChange={handleAuctionChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600 relative z-10"
-                    required
-                  >
-                    <option value="" style={{ fontWeight: 'bold' }}>Select a product</option>
-                    {products.map((product) => (
-                      <option key={product._id} value={product._id}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex gap-2 items-center">
+                    <select
+                      name="productId"
+                      value={auctionData.productId}
+                      onChange={handleAuctionChange}
+                      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600 relative z-10"
+                      required
+                    >
+                      <option value="" style={{ fontWeight: 'bold' }}>Select a product</option>
+                      {products.map((product) => (
+                        <option key={product._id} value={product._id}>
+                          {product.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+                    >
+                      Change
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -460,9 +469,10 @@ function CreateAuction() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700"
+                    disabled={creatingAuction}
+                    className="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 disabled:bg-gray-400"
                   >
-                    Create Auction
+                    {creatingAuction ? 'Creating Auction...' : 'Create Auction'}
                   </button>
                 </div>
               </form>

@@ -73,7 +73,7 @@ function Login() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
+              className="w-full px-4 py-2 border rounded-lg input-focus"
               required
             />
           </div>
@@ -85,7 +85,7 @@ function Login() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
+              className="w-full px-4 py-2 border rounded-lg input-focus"
               required
             />
           </div>
@@ -93,7 +93,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 disabled:bg-gray-400"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 disabled:bg-gray-400 btn-hover"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>

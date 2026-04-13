@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { auctionAPI, categoryAPI } from '../services/api';
 import AuctionCard from '../components/AuctionCard';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 function BrowseAuctions() {
+    const location = useLocation();
     const [auctions, setAuctions] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,7 +16,7 @@ function BrowseAuctions() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [location]); // Refetch when location changes (navigation)
 
     const fetchData = async () => {
         try {
@@ -30,30 +33,41 @@ function BrowseAuctions() {
         }
     };
 
-    const filteredAuctions = auctions.filter((auction) => {
-        // Status filter
-        if (filters.status !== 'all' && auction.status !== filters.status) {
-            return false;
-        }
-
-        // Category filter (FIXED)
-        if (filters.category !== 'all') {
-            const categoryId =
-                typeof auction.category === 'object'
-                    ? auction.category._id
-                    : auction.category;
-
-            if (categoryId !== filters.category) {
+    const filteredAuctions = auctions
+        .filter((auction) => {
+            // Status filter
+            if (filters.status !== 'all' && auction.status !== filters.status) {
                 return false;
             }
-        }
 
-        return true;
-    });
+            // Category filter (FIXED)
+            if (filters.category !== 'all') {
+                const categoryId =
+                    typeof auction.category === 'object'
+                        ? auction.category._id
+                        : auction.category;
+
+                if (categoryId !== filters.category) {
+                    return false;
+                }
+            }
+
+            return true;
+        })
+        .sort((a, b) => {
+            // Sort by status: active first, then upcoming, then ended
+            const statusOrder = { active: 0, upcoming: 1, ended: 2 };
+            const aOrder = statusOrder[a.status] ?? 3;
+            const bOrder = statusOrder[b.status] ?? 3;
+            return aOrder - bOrder;
+        });
     return (
         <div className="min-h-screen bg-gray-50 py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h1 className="text-4xl font-bold mb-8">Browse Auctions</h1>
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold mb-4">Browse Auctions</h1>
+                    <p className="text-gray-600 text-lg">Active auctions first, followed by upcoming and ended auctions</p>
+                </div>
 
                 {/* Filters */}
                 <div className="bg-white rounded-lg shadow p-6 mb-8">
@@ -101,7 +115,7 @@ function BrowseAuctions() {
 
                 {/* Auctions Grid */}
                 {loading ? (
-                    <div className="text-center">Loading...</div>
+                    <LoadingSpinner size="lg" />
                 ) : filteredAuctions.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredAuctions.map((auction) => (
@@ -109,7 +123,10 @@ function BrowseAuctions() {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center text-gray-500 text-xl">No auctions found with the selected filters</div>
+                    <div className="text-center text-gray-500 text-xl py-12">
+                        <div className="text-6xl mb-4">🔍</div>
+                        No auctions found matching your criteria
+                    </div>
                 )}
             </div>
         </div>
