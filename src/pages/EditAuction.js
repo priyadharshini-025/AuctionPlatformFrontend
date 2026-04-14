@@ -20,6 +20,7 @@ function EditAuction() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
+    name: '',
     auctionType: 'traditional',
     category: '',
     startTime: '',
@@ -41,6 +42,7 @@ function EditAuction() {
         const auctionData = auctionRes.data;
         setAuction(auctionData);
         setFormData({
+          name: auctionData.name,
           auctionType: auctionData.auctionType,
           category: auctionData.category?._id || auctionData.category,
           startTime: formatDateTimeLocal(new Date(auctionData.startTime)),
@@ -133,6 +135,17 @@ function EditAuction() {
 
         <div className="bg-white rounded-lg shadow p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-gray-700 font-bold mb-2">Auction Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-600"
+                required
+              />
+            </div>
             <div>
               <label className="block text-gray-700 font-bold mb-2">Auction Type</label>
               <select
