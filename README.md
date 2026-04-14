@@ -32,11 +32,14 @@ A modern React.js frontend for a full-stack Auction Platform where users can bro
  * Real-time auction updates
 
 ## Demo Credentials
-User1:
+User1:(can be used for register checking)
+ * Name: Priya C
  * Email: priyachandrasekar2002@gmail.com
+ * Contact : 7886745346
+ * I am a : User
  * Password: welcome@123
 
-User2:
+User2:(can used for login and view bidding history)
  * Email: learningcpriya@gmail.com
  * Password: guvi@123
 
