@@ -42,7 +42,7 @@ function EditAuction() {
         const auctionData = auctionRes.data;
         setAuction(auctionData);
         setFormData({
-          name: auctionData.name,
+          name: auctionData.product?.name || auctionData.name || '',
           auctionType: auctionData.auctionType,
           category: auctionData.category?._id || auctionData.category,
           startTime: formatDateTimeLocal(new Date(auctionData.startTime)),
@@ -87,6 +87,7 @@ function EditAuction() {
 
     try {
       const body = new FormData();
+      body.append('name', formData.name);
       body.append('auctionType', formData.auctionType);
       body.append('category', formData.category);
       body.append('startTime', new Date(formData.startTime).toISOString());
