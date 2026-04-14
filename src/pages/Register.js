@@ -15,6 +15,8 @@ function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -170,16 +172,25 @@ function Register() {
 
           <div>
             <label className="block text-gray-700 font-bold mb-2">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg input-focus ${
-                validationErrors.password ? 'border-red-500' : ''
-              }`}
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 pr-12 border rounded-lg input-focus ${
+                  validationErrors.password ? 'border-red-500' : ''
+                }`}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
             {validationErrors.password && (
               <p className="text-red-500 text-sm mt-1">{validationErrors.password}</p>
             )}
@@ -187,16 +198,25 @@ function Register() {
 
           <div>
             <label className="block text-gray-700 font-bold mb-2">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg input-focus ${
-                validationErrors.confirmPassword ? 'border-red-500' : ''
-              }`}
-              required
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 pr-12 border rounded-lg input-focus ${
+                  validationErrors.confirmPassword ? 'border-red-500' : ''
+                }`}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+              >
+                {showConfirmPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
             {validationErrors.confirmPassword && (
               <p className="text-red-500 text-sm mt-1">{validationErrors.confirmPassword}</p>
             )}
